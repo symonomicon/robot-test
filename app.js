@@ -7,6 +7,10 @@ class Robot {
         this.facing = "North"
         this.facingValue = 0;
         this.compass = ["North", "East", "South", "West"]
+
+        this.fvMax = this.compass.length - 1;
+        this.xMax = 4;
+        this.yMax = 4;
     }
     async init () {
         console.log(`
@@ -20,7 +24,7 @@ class Robot {
         const coordValidator = (input) => {
             if (isNaN(input)) 
                 return "Invalid input, please type a number";
-            if (input > 4 || input < 0)
+            if (input > self.xMax || input < 0)
                 return "Exceeds playable area, select something between 0-4";
             return true;
         }
@@ -93,25 +97,25 @@ class Robot {
     }
     rotate (d) {
         if (d%2) { // To Left
-            this.facingValue = (this.facingValue - 1) < 0 ? 3 : this.facingValue - 1;
+            this.mathOp.sub("facingValue", this.fvMax, true);
         } else {
-            this.facingValue = (this.facingValue + 1) > 3 ? 0 : this.facingValue + 1;
+            this.mathOp.add("facingValue", this.fvMax, true);
         }
         this.facing = this.compass[this.facingValue];
     }
     move () {
         switch (this.facingValue) {
             case 0:
-                this.y = (this.y + 1) > 4 ? this.y : this.y + 1;
+                this.mathOp.add("y", this.yMax, false);
                 break;
             case 1:
-                this.x = (this.x + 1) > 4 ? this.x : this.x + 1;
+                this.mathOp.add("x", this.xMax, false);
                 break;
             case 2:
-                this.y = (this.y - 1) < 0 ? this.y : this.y - 1;
+                this.mathOp.sub("y", this.yMax, false);
                 break;
             case 3:
-                this.x = (this.x - 1) < 0 ? this.x : this.x - 1;
+                this.mathOp.sub("x", this.xMax, false);
                 break;
         }
     }
@@ -127,6 +131,17 @@ class Robot {
             HELP: Displays readme for all the commands.
             QUIT: Leave the game :c
         `
+    }
+    get mathOp () {
+        const self = this
+        return {
+            add: (item, limit, isReset) => {
+                self[item] = (self[item] + 1) > limit ? (isReset ? 0 : self[item]) : self[item] + 1;
+            },
+            sub: (item, limit, isReset) => {
+                self[item] = (self[item] - 1) < 0 ? (isReset ? limit : self[item]) : self[item] - 1;
+            }
+        }
     }
 }
 
